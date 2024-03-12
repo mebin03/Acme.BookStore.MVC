@@ -16,45 +16,53 @@
                     title: l('Actions'),
                     rowAction: {
                         items:
-                            [{
-                                text: l('Edit'),
-                                visible: abp.auth.isGranted('BookStore.Books.Edit'), //CHECK for the PERMISSION
-                                action: function (data) {
-                                    editModal.open({ id: data.record.id });
+                            [
+                                {
+                                    text: l('Edit'),
+                                    visible: abp.auth.isGranted('BookStore.Books.Edit'), //CHECK for the PERMISSION
+                                    action: function (data) {
+                                        editModal.open({ id: data.record.id });
+                                    }
+                                },
+                                {
+                                    text: l('Delete'),
+                                    visible: abp.auth.isGranted('BookStore.Books.Delete'), //CHECK for the PERMISSION
+                                    confirmMessage: function (data) {
+                                        return l(
+                                            'BookDeletionConfirmationMessage',
+                                            data.record.name
+                                        );
+                                    },
+                                    action: function (data) {
+                                        acme.bookStore.books.book
+                                            .delete(data.record.id)
+                                            .then(function () {
+                                                abp.notify.info(
+                                                    l('SuccessfullyDeleted')
+                                                );
+                                                dataTable.ajax.reload();
+                                            });
+                                    }
                                 }
-                            }
-
                             ]
-                            {
-                                text: l('Delete'),
-                                visible: abp.auth.isGranted('BookStore.Books.Delete')
-
-                    confirmMessage: function (data) {
-                        return l('BookDeletionConfirmationMessage', data.record.name);
-
-                    },
-                    action: function (data) {
-                        acme.bookStore.books.book
-                            .delete(data.record.id)
-                            .then(function () {
-                                abp.notify.info(l('SuccessfullyDeleted'));
-                                dataTable.ajax.reload();
-                            });
-                    }
-                }
-
                     }
                 },
                 {
                     title: l('Name'),
                     data: "name"
-    },
+                },
+                {
+                    title: l('Author'),
+                    data: "authorName"
+                },
 
-    // ADDED the NEW AUTHOR NAME COLUMN
-    {
-        title: l('Author'),
-        data: "authorName"
-    },
+                {
+                    title: l('Type'),
+                    data: "type",
+                    render: function (data) {
+                        return l('Enum:BookType.' + data);
+                    }
+                },
                 {
                     title: l('Type'),
                     data: "type",
